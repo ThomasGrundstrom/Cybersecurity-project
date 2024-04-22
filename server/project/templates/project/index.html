@@ -1,4 +1,11 @@
+Hi {{ user.username }}, your current balance is {{ balance }}
+
 <form action="logout/" method="post">
     {% csrf_token %}
     <input type="submit" value="Log out"/>
+</form>
+
+<form action="{% url 'addbalance' %}" method="post">
+    {% csrf_token %}
+    <button type="submit">Add balance</button>
 </form>
