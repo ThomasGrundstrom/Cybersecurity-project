@@ -9,3 +9,17 @@ Hi {{ user.username }}, your current balance is {{ balance }}
     {% csrf_token %}
     <button type="submit">Add balance</button>
 </form>
+
+{% for friend in friends %}
+<a href="/account/{{ friend.id }}">{{ friend }}</a>
+{% endfor %}
+
+<form action="chat/" method="get">
+    <select name="to">
+        {% for account in accounts %}
+        <hr>
+        <option value="{{ account.user.username }}">{{ account.user.username }}</option>
+        {% endfor %}
+    </select>
+    <input type="submit" value="Open chat"/>
+</form>

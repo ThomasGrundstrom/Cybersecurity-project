@@ -1,0 +1,21 @@
+<h2>Chat with {{ to }}</h2>
+
+
+<form action="sendmessage/" method="post">
+    {% csrf_token %}
+    <input type="hidden" name="chat" value="{{ chat }}">
+    <input type="hidden" name="receiver" value="{{ to }}">
+    <textarea id="newmessage" name="newmessage" rows="4" cols="50"></textarea>
+    <input type="submit" value="Send"/>
+</form>
+<input type="button" onclick="location.href='{% url 'index' %}'" value="Back to home page">
+
+{% for message in messages %}
+<hr>
+{% if message.sender == user %}
+{{ message.timestamp }} || <b>You:</b> {{ message.content }}
+{% else %}
+{{ message.timestamp }} || <b>{{ message.sender.username }}:</b> {{ message.content }}
+{% endif %}
+{% endfor %}
+
