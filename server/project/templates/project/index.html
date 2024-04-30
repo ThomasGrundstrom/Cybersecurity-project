@@ -1,25 +1,48 @@
-Hi {{ user.username }}, your current balance is {{ balance }}
+Hi {{ user.username }}!
 
 <form action="logout/" method="post">
     {% csrf_token %}
     <input type="submit" value="Log out"/>
 </form>
+<br>
 
-<form action="{% url 'addbalance' %}" method="post">
-    {% csrf_token %}
-    <button type="submit">Add balance</button>
+Search for users by username:
+
+<form action="{% url 'searchusers' %}" method="get">
+    <input type="text" name="query">
+    <input type="submit" value="Search"/>
 </form>
+<br>
 
-{% for friend in friends %}
-<a href="/account/{{ friend.id }}">{{ friend }}</a>
+{% if chats|length > 0 %}
+Open chats:
+{% for chat in chats %}
+<hr>
+{% if chat.user1 == user %}
+{{ chat.user2 }}
+{% else %}
+{{ chat.user1 }}
+{% endif %}
 {% endfor %}
+{% else %}
+You have not opened any chats yet.
+{% endif %}
+<br>
+<br>
 
+{% if friends|length > 0 %}
+Your friends:
+<br>
+{% for friend in friends %}
+<hr>
+{{ friend.user.username }}
 <form action="chat/" method="get">
-    <select name="to">
-        {% for account in accounts %}
-        <hr>
-        <option value="{{ account.user.username }}">{{ account.user.username }}</option>
-        {% endfor %}
-    </select>
+    <input type="hidden" value="{{ friend.user.username }}" name="to">
     <input type="submit" value="Open chat"/>
 </form>
+{% endfor %}
+{% else %}
+You have not added any friends yet.
+{% endif %}
+<br>
+<br>

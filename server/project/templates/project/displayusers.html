@@ -1,0 +1,12 @@
+<input type="button" onclick="location.href='{% url 'index' %}'" value="Back to home page">
+<br>
+<h2>Found users:</h2>
+{% for user in users %}
+<hr>
+{{ user }}
+<form action="{% url 'addfriend' %}" method="post">
+    {% csrf_token %}
+    <input type="hidden" name="username" value="{{ user }}">
+    <input type="submit" value="Add to friends list"/>
+</form>
+{% endfor %}

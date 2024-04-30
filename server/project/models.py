@@ -8,6 +8,7 @@ class Account(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     balance = models.IntegerField(default=0)
     friends = models.ManyToManyField("self", symmetrical=False, blank=True)
+    chats = models.ManyToManyField("Chat", blank=True)
 
 class Message(models.Model):
     sender = models.ForeignKey(User, related_name="sender", on_delete=models.CASCADE)

@@ -1,3 +1,4 @@
+import sqlite3
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
@@ -13,10 +14,10 @@ def index(request):
         acc = Account.objects.get(user=request.user)
     except:
         acc = Account.objects.create(user=request.user)
-    balance = acc.balance
     friends = acc.friends.all()
     accounts = Account.objects.exclude(user_id=request.user.id)
-    return render(request, 'project/index.html', {'balance': balance, 'friends': friends, 'accounts': accounts})
+    chats = acc.chats.all()
+    return render(request, 'project/index.html', {'friends': friends, 'accounts': accounts, 'chats': chats})
 
 def signUpView(request):
     if request.method == 'POST':
@@ -29,19 +30,30 @@ def signUpView(request):
     return render(request, 'project/signup.html', {'form': form})
 
 @login_required
-def addBalance(request):
-    if request.method == 'POST':
-        acc = Account.objects.get(user=request.user)
-        acc.balance += 10
-        acc.save()
-    return redirect('/')
+def searchUsers(request):
+    conn = sqlite3.connect('db.sqlite3')
+    cursor = conn.cursor()
+    query = request.GET.get('query')
+    response = cursor.execute("SELECT username FROM auth_user WHERE username LIKE '%" + query + "%'")
+    users = []
+    for i in response:
+        if i[0] != request.user.username:
+            users.append(i[0])
+    return render(request, 'project/displayusers.html', {'users': users})
 
 @login_required
 def addFriend(request):
     if request.method == 'POST':
         acc1 = Account.objects.get(user=request.user)
-        acc2name = request.POST.get('name')
-        acc2 = Account.objects.get(user=acc2name)
+        acc2name = request.POST.get('username')
+        user2 = User.objects.get(username=acc2name)
+        acc2 = Account.objects.get(user=user2)
+        if len(acc1.friends.all()) != 0:
+            for friend in acc1.friends.all():
+                if acc2 == friend:
+                    return redirect('/')
+        acc1.friends.add(acc2)
+        acc1.save()
     return redirect('/')
 
 @login_required
@@ -51,6 +63,13 @@ def openChat(request):
         chat = Chat.objects.get(user1=request.user, user2=to)
     except:
         chat, created = Chat.objects.get_or_create(user1 = to, user2 = request.user)
+        if created:
+            acc1 = Account.objects.get(user=request.user)
+            acc2 = Account.objects.get(user=to)
+            acc1.chats.add(chat)
+            acc2.chats.add(chat)
+            acc1.save()
+            acc2.save()
     messages = chat.messages.all()[::-1]
     return render(request, 'project/chat.html', {'chat': chat, 'to': to, 'messages': messages})
 
