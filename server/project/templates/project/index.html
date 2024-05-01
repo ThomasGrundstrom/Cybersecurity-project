@@ -19,13 +19,29 @@ Open chats:
 {% for chat in chats %}
 <hr>
 {% if chat.user1 == user %}
-{{ chat.user2 }}
+{{ chat.user2.username }}
+<form action="chat/" method="get">
+    <input type="hidden" value="{{ chat.user2.username }}" name="to">
+    <input type="submit" value="Open chat"/>
+</form>
+<form action="delete/" method="get">
+    <input type="hidden" value="{{ chat.user2.username }}" name="to">
+    <input type="submit" value="Delete chat"/>
+</form>
 {% else %}
-{{ chat.user1 }}
+{{ chat.user1.username }}
+<form action="chat/" method="get">
+    <input type="hidden" value="{{ chat.user1.username }}" name="to">
+    <input type="submit" value="Open chat"/>
+</form>
+<form action="delete/" method="get">
+    <input type="hidden" value="{{ chat.user1.username }}" name="to">
+    <input type="submit" value="Delete chat"/>
+</form>
 {% endif %}
 {% endfor %}
 {% else %}
-You have not opened any chats yet.
+You do not have any open chats at the moment. Add friends to open chats.
 {% endif %}
 <br>
 <br>
@@ -39,6 +55,11 @@ Your friends:
 <form action="chat/" method="get">
     <input type="hidden" value="{{ friend.user.username }}" name="to">
     <input type="submit" value="Open chat"/>
+</form>
+<form action="deletefriend/" method="post">
+    {% csrf_token %}
+    <input type="hidden" value="{{ friend.user.username }}" name="friend">
+    <input type="submit" value="Delete friend"/>
 </form>
 {% endfor %}
 {% else %}

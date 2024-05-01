@@ -1,6 +1,5 @@
 import sqlite3
 from django.shortcuts import render, redirect
-from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
@@ -39,6 +38,8 @@ def searchUsers(request):
     for i in response:
         if i[0] != request.user.username:
             users.append(i[0])
+#    SECURE SEARCH FUNCTION BELOW:
+#    users = User.objects.filter(username__icontains=query).exclude(username=request.user.username).values_list('username', flat=True)
     return render(request, 'project/displayusers.html', {'users': users})
 
 @login_required
@@ -87,3 +88,32 @@ def sendMessage(request):
         chat.messages.add(message)
         chat.save()
     return redirect('/chat/?to=' + receiver)
+
+@login_required
+def deleteChat(request):
+    to = request.GET.get('to')
+    return render(request, 'project/deleteconfirm.html', {'to': to})
+
+@login_required
+def deleteConfirm(request):
+    if request.method == 'POST':
+        to = request.POST.get('to')
+        receiver = User.objects.get(username=to)
+        try:
+            chat = Chat.objects.get(user1=request.user, user2=receiver)
+        except:
+            chat = Chat.objects.get(user1=receiver, user2=request.user)
+        for message in chat.messages.all():
+            message.delete()
+        chat.delete()
+    return redirect('/')
+
+@login_required
+def deleteFriend(request):
+    if request.method == 'POST':
+        friend = request.POST.get('friend')
+        friend_user = User.objects.get(username=friend)
+        friend_acc = Account.objects.get(user=friend_user)
+        acc = Account.objects.get(user=request.user)
+        acc.friends.remove(friend_acc)
+    return redirect('/')

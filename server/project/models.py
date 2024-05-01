@@ -6,7 +6,6 @@ from django.contrib.auth.models import User
 
 class Account(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    balance = models.IntegerField(default=0)
     friends = models.ManyToManyField("self", symmetrical=False, blank=True)
     chats = models.ManyToManyField("Chat", blank=True)
 
