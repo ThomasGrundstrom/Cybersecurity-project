@@ -3,33 +3,55 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
+from django.contrib.auth.hashers import make_password
 from .models import Account, Chat, Message
+from django.views.decorators.csrf import csrf_exempt
 
 # Create your views here.
 
 @login_required
 def index(request):
-    try:
-        acc = Account.objects.get(user=request.user)
-    except:
-        acc = Account.objects.create(user=request.user)
+    acc = Account.objects.get(user=request.user)
     friends = acc.friends.all()
     accounts = Account.objects.exclude(user_id=request.user.id)
     chats = acc.chats.all()
     return render(request, 'project/index.html', {'friends': friends, 'accounts': accounts, 'chats': chats})
 
 def signUpView(request):
+# START OF BAD CODE
     if request.method == 'POST':
-        form = UserCreationForm(request.POST)
-        if form.is_valid():
-            form.save()
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        password_conf = request.POST.get('password_conf')
+        if password != password_conf:
+            errormessage = 'Passwords do not match.'
+            return render(request, 'project/badform.html', {'errormessage': errormessage})
+        try:
+            User.objects.get(username=username)
+            errormessage = 'Username already in use.'
+            return render(request, 'project/badform.html', {'errormessage': errormessage})
+        except:
+            password_enc = make_password(password)
+            user = User.objects.create(username=username, password=password_enc)
+            Account.objects.create(user=user)
             return redirect('/')
-    else:
-        form = UserCreationForm()
-    return render(request, 'project/signup.html', {'form': form})
+    return render(request, 'project/badform.html', {'errormessage': ''})
+# END OF BAD CODE - FIX BELOW
+#    if request.method == 'POST':
+#        username = request.POST.get('username')
+#        form = UserCreationForm(request.POST)
+#        if form.is_valid():
+#            form.save()
+#            user = User.objects.get(username=username)
+#            Account.objects.create(user=user)
+#            return redirect('/')
+#    else:
+#        form = UserCreationForm()
+#    return render(request, 'project/signup.html', {'form': form})
 
 @login_required
 def searchUsers(request):
+# START OF BAD CODE
     conn = sqlite3.connect('db.sqlite3')
     cursor = conn.cursor()
     query = request.GET.get('query')
@@ -38,6 +60,7 @@ def searchUsers(request):
     for i in response:
         if i[0] != request.user.username:
             users.append(i[0])
+# END OF BAD CODE
 #    SECURE SEARCH FUNCTION BELOW:
 #    users = User.objects.filter(username__icontains=query).exclude(username=request.user.username).values_list('username', flat=True)
     return render(request, 'project/displayusers.html', {'users': users})
@@ -94,6 +117,7 @@ def deleteChat(request):
     to = request.GET.get('to')
     return render(request, 'project/deleteconfirm.html', {'to': to})
 
+@csrf_exempt
 @login_required
 def deleteConfirm(request):
     if request.method == 'POST':

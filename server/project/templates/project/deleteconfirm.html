@@ -1,7 +1,8 @@
 <b>Are you sure you want to delete all messages in the chat with {{ to }}?</b>
 <br>
+<!-- Form missing csrf token check -->
 <form action="{% url 'deleteconfirm' %}" method="post">
-    {% csrf_token %}
+    <!-- {% csrf_token %} -->
     <input type="hidden" value="{{ to }}" name="to">
     <br>
     <input type="submit" value="Yes, I want to delete this whole chat"/>

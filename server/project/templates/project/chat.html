@@ -13,9 +13,11 @@
 {% for message in messages %}
 <hr>
 {% if message.sender == user %}
-{{ message.timestamp }} || <b>You:</b> {{ message.content }}
+<!-- Remove |safe from following line to make code secure -->
+{{ message.timestamp }} || <b>You:</b> {{ message.content|safe }}
 {% else %}
-{{ message.timestamp }} || <b>{{ message.sender.username }}:</b> {{ message.content }}
+<!-- Remove |safe from following line to make code secure -->
+{{ message.timestamp }} || <b>{{ message.sender.username }}:</b> {{ message.content|safe }}
 {% endif %}
 {% endfor %}
 

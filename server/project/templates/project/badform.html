@@ -1,0 +1,16 @@
+<!-- HTML for sign up form that has no requirements for username or password -->
+<input type="button" onclick="location.href='{% url 'index' %}'" value="Back to login page">
+<br>
+<h2>Sign up</h2>
+<form action="{% url 'signup' %}" method="post">
+    {% csrf_token %}
+    Username: <input type="text" name="username" required>
+    <p>
+    Password: <input type="password" name="password" required>
+    <p>
+    Password confirmation: <input type="password" name="password_conf" required>
+    <p>
+    <input type="submit" value="Sign up"/>
+</form>
+<br>
+{{ errormessage }}
