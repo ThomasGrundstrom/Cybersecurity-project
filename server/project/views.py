@@ -62,6 +62,7 @@ def searchUsers(request):
             users.append(i[0])
 # END OF BAD CODE
 #    SECURE SEARCH FUNCTION BELOW:
+#    query = request.GET.get('query')
 #    users = User.objects.filter(username__icontains=query).exclude(username=request.user.username).values_list('username', flat=True)
     return render(request, 'project/displayusers.html', {'users': users})
 
